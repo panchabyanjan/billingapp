@@ -3,120 +3,110 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Login – Panchabyanjan Billing</title>
+  <title>Panchabyanjan Login</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      background: #fff8f0;
+      background: #fff5eb;
+      margin: 0;
+      padding: 0;
       display: flex;
       justify-content: center;
       align-items: center;
       height: 100vh;
     }
-
-    .login-box {
-      background: white;
-      padding: 30px;
-      border: 1px solid #ccc;
-      box-shadow: 0 0 15px rgba(0,0,0,0.1);
+    .login-container {
+      background: #fff;
+      padding: 20px 30px;
+      border: 1px solid #ddd;
       border-radius: 8px;
-      width: 300px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
     }
-
     h2 {
       text-align: center;
       margin-bottom: 20px;
-      color: #b34a00;
+      color: #d35400;
     }
-
     input {
       width: 100%;
       padding: 10px;
-      margin-bottom: 15px;
-      font-size: 14px;
+      margin-top: 10px;
+      border-radius: 4px;
       border: 1px solid #ccc;
-      border-radius: 5px;
     }
-
     button {
       width: 100%;
       padding: 10px;
-      background: #ff6600;
+      margin-top: 15px;
+      background-color: #d35400;
       color: white;
       border: none;
-      border-radius: 5px;
-      font-weight: bold;
-      font-size: 16px;
+      border-radius: 4px;
       cursor: pointer;
     }
-
     button:hover {
-      background: #e65c00;
+      background-color: #b84300;
     }
-
     .error {
       color: red;
-      font-size: 13px;
-      margin-top: -10px;
-      margin-bottom: 10px;
+      margin-top: 10px;
+      text-align: center;
     }
   </style>
 </head>
 <body>
-  <div class="login-box">
-    <h2>Panchabyanjan Billing</h2>
-    <input type="text" id="username" placeholder="Username" />
-    <input type="password" id="password" placeholder="Password" />
-    <div class="error" id="errorMsg"></div>
+  <div class="login-container">
+    <h2>🔐 Panchabyanjan Login</h2>
+    <input type="text" id="username" placeholder="Username" required />
+    <input type="password" id="password" placeholder="Password" required />
     <button onclick="login()">Login</button>
+    <div class="error" id="errorMsg"></div>
   </div>
 
-  <!-- Firebase SDK -->
+  <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
   <script>
     const firebaseConfig = {
-       apiKey: "AIzaSyAxdpXKIWn3JKDiqY83I1-HL0kpLS0gNCs",
-    authDomain: "panchabyanjan-bill.firebaseapp.com",
-    projectId: "panchabyanjan-bill",
-    storageBucket: "panchabyanjan-bill.firebasestorage.app",
-    messagingSenderId: "781874423766",
-    appId: "1:781874423766:web:c52c017052ee12f0286677",
-    measurementId: "G-37G8V73NWR"
+        apiKey: "AIzaSyAxdpXKIWn3JKDiqY83I1-HL0kpLS0gNCs",
+  authDomain: "panchabyanjan-bill.firebaseapp.com",
+databaseURL:"https://console.firebase.google.com/u/0/project/panchabyanjan-bill/database/panchabyanjan-bill-default-rtdb/data/~2F"
+  projectId: "panchabyanjan-bill",
+  storageBucket: "panchabyanjan-bill.firebasestorage.app",
+  messagingSenderId: "781874423766",
+  appId: "1:781874423766:web:c52c017052ee12f0286677",
+  measurementId: "G-37G8V73NWR"
     };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
+  </script>
 
+  <script>
     function login() {
       const username = document.getElementById("username").value.trim();
       const password = document.getElementById("password").value.trim();
-      const errorMsg = document.getElementById("errorMsg");
-      errorMsg.textContent = "";
+      const error = document.getElementById("errorMsg");
+      error.textContent = "";
 
-      if (!username || !password) {
-        errorMsg.textContent = "Please enter username and password.";
-        return;
-      }
-
-      db.ref("users").once("value", (snapshot) => {
+      db.ref("users").once("value", snapshot => {
         let found = false;
-        snapshot.forEach((child) => {
+        snapshot.forEach(child => {
           const user = child.val();
           if (user.username === username && user.password === password) {
-            // Save to localStorage
-            localStorage.setItem("loggedInUser", JSON.stringify({
-              username: user.username,
-              role: user.role || "staff",
-              permissions: user.permissions || []
-            }));
             found = true;
+            const userData = {
+              username: user.username,
+              role: user.role,
+              permissions: user.permissions || []
+            };
+            localStorage.setItem("loggedInUser", JSON.stringify(userData));
             window.location.href = "index.html";
           }
         });
 
         if (!found) {
-          errorMsg.textContent = "Invalid username or password.";
+          error.textContent = "Invalid username or password.";
         }
       });
     }
