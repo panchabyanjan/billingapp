@@ -2,112 +2,122 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Pradiksha Restro Soft Login</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login – Panchabyanjan Billing</title>
   <style>
     body {
-      font-family: sans-serif;
+      font-family: Arial, sans-serif;
+      background: #fff8f0;
       display: flex;
       justify-content: center;
       align-items: center;
       height: 100vh;
-      margin: 0;
-      background: #f9f9f9;
     }
+
     .login-box {
       background: white;
       padding: 30px;
+      border: 1px solid #ccc;
+      box-shadow: 0 0 15px rgba(0,0,0,0.1);
       border-radius: 8px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-      width: 100%;
-      max-width: 350px;
+      width: 300px;
     }
+
     h2 {
       text-align: center;
       margin-bottom: 20px;
+      color: #b34a00;
     }
+
     input {
       width: 100%;
       padding: 10px;
-      margin-top: 10px;
-      box-sizing: border-box;
+      margin-bottom: 15px;
       font-size: 14px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
     }
+
     button {
       width: 100%;
       padding: 10px;
-      margin-top: 15px;
-      background: #ff6a00;
+      background: #ff6600;
       color: white;
       border: none;
+      border-radius: 5px;
+      font-weight: bold;
       font-size: 16px;
       cursor: pointer;
     }
-    p.error {
+
+    button:hover {
+      background: #e65c00;
+    }
+
+    .error {
       color: red;
-      text-align: center;
-      margin-top: 10px;
+      font-size: 13px;
+      margin-top: -10px;
+      margin-bottom: 10px;
     }
   </style>
 </head>
 <body>
   <div class="login-box">
-    <h2>🍽️ Pradiksha Restro Soft Login</h2>
+    <h2>Panchabyanjan Billing</h2>
     <input type="text" id="username" placeholder="Username" />
     <input type="password" id="password" placeholder="Password" />
+    <div class="error" id="errorMsg"></div>
     <button onclick="login()">Login</button>
-    <p class="error" id="errorMsg"></p>
   </div>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
   <script>
     const firebaseConfig = {
-      apiKey: "AIzaSyBFLzo4TB3wvnUzzriyB3oY4Grw8FMPmXY",
-      authDomain: "panchabyanjan-billing-7ca90.firebaseapp.com",
-      databaseURL: "https://panchabyanjan-billing-7ca90-default-rtdb.asia-southeast1.firebasedatabase.app",
-      projectId: "panchabyanjan-billing-7ca90",
-      storageBucket: "panchabyanjan-billing-7ca90.appspot.com",
-      messagingSenderId: "892887228821",
-      appId: "1:892887228821:web:96af9e50282ddfc672569c"
+       apiKey: "AIzaSyAxdpXKIWn3JKDiqY83I1-HL0kpLS0gNCs",
+    authDomain: "panchabyanjan-bill.firebaseapp.com",
+    projectId: "panchabyanjan-bill",
+    storageBucket: "panchabyanjan-bill.firebasestorage.app",
+    messagingSenderId: "781874423766",
+    appId: "1:781874423766:web:c52c017052ee12f0286677",
+    measurementId: "G-37G8V73NWR"
     };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
     function login() {
-      const uname = document.getElementById("username").value.trim();
-      const pwd = document.getElementById("password").value.trim();
-      const error = document.getElementById("errorMsg");
-      error.textContent = "";
+      const username = document.getElementById("username").value.trim();
+      const password = document.getElementById("password").value.trim();
+      const errorMsg = document.getElementById("errorMsg");
+      errorMsg.textContent = "";
 
-      if (!uname || !pwd) {
-        error.textContent = "Username and password required.";
+      if (!username || !password) {
+        errorMsg.textContent = "Please enter username and password.";
         return;
       }
 
-      db.ref("users").orderByChild("username").equalTo(uname).once("value", snap => {
-        if (!snap.exists()) {
-          error.textContent = "Invalid username or password.";
-          return;
+      db.ref("users").once("value", (snapshot) => {
+        let found = false;
+        snapshot.forEach((child) => {
+          const user = child.val();
+          if (user.username === username && user.password === password) {
+            // Save to localStorage
+            localStorage.setItem("loggedInUser", JSON.stringify({
+              username: user.username,
+              role: user.role || "staff",
+              permissions: user.permissions || []
+            }));
+            found = true;
+            window.location.href = "index.html";
+          }
+        });
+
+        if (!found) {
+          errorMsg.textContent = "Invalid username or password.";
         }
-
-        const users = snap.val();
-        const userKey = Object.keys(users)[0];
-        const userData = users[userKey];
-
-        if (userData.password !== pwd) {
-          error.textContent = "Incorrect password.";
-          return;
-        }
-
-        // Save session
-        localStorage.setItem("loggedInUser", JSON.stringify({
-          username: userData.username,
-          role: userData.role || "staff"
-        }));
-
-        // Redirect
-        window.location.href = "index.html";
       });
     }
   </script>
